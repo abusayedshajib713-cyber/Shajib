@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Bio — Premium Profile</title>
+
+  <style>
+    :root{
+      --t: 650ms;
+      --ease: cubic-bezier(.2,.8,.2,1);
+
+      /* Intro (dark purple) */
+      --intro-bg1:#070212;
+      --intro-bg2:#12052a;
+      --intro-text:#f3f4ff;
+
+      /* Main (light) */
+      --main-bg1:#f7f8ff;
+      --main-bg2:#eef2ff;
+      --card: rgba(255,255,255,.82);
+      --stroke: rgba(0,0,0,.10);
+      --text:#0a0e1a;
+      --muted:#0a0e1ab3;
+
+      --shadow: 0 24px 70px rgba(0,0,0,.18);
+      --shadow2: 0 18px 55px rgba(124,58,237,.20);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans","Helvetica Neue",Arial;
+      color:var(--intro-text);
+      overflow-x:hidden;
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(900px 700px at 92% 18%, rgba(34,211,238,.24), transparent 55%),
+        radial-gradient(1000px 800px at 40% 95%, rgba(249,115,22,.16), transparent 55%),
+        linear-gradient(180deg, var(--intro-bg1), var(--intro-bg2));
+    }
+
+    a{color:inherit; text-decoration:none}
+    button{font:inherit}
+    .hidden{display:none !important}
+
+    /* ===== Intro Screen ===== */
+    .intro{
+      position:fixed; inset:0;
+      display:grid; place-items:center;
+      padding:24px;
+      z-index:50;
+    }
+
+    .introCard{
+      width:min(980px, 92vw);
+      border-radius: calc(var(--radius) + 8px);
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .introCard::before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(124,58,237,.35), transparent 55%),
+        radial-gradient(circle at 75% 25%, rgba(34,211,238,.22), transparent 55%),
+        radial-gradient(circle at 50% 85%, rgba(249,115,22,.18), transparent 55%);
+      filter: blur(20px);
+      animation: floatGlow 7s ease-in-out infinite alternate;
+      pointer-events:none;
+    }
+
+    @keyframes floatGlow{
+      from{transform: translate3d(-2%, -1%, 0) scale(1.02)}
+      to{transform: translate3d(2%, 2%, 0) scale(1.06)}
+    }
+
+    .introInner{
+      position:relative;
+      padding: min(56px, 6vw);
+      display:grid;
+      gap:18px;
+      text-align:center;
+    }
+
+    .title{
+      margin:0;
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1.04;
+      font-size: clamp(34px, 4.8vw, 64px);
+    }
+
+    .rainbow{
+      background: linear-gradient(90deg,
+        #22d3ee, #7c3aed, #f97316, #10b981, #22d3ee);
+      background-size: 300% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      animation: hueMove 2.8s linear infinite;
+      text-shadow: 0 0 24px rgba(124,58,237,.25);
+    }
+
+    @keyframes hueMove{
+      0%{background-position:0% 50%}
+      100%{background-position:100% 50%}
+    }
+
+    .ctaRow{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight:800;
+      letter-spacing:.2px;
+      transition: transform 160ms var(--ease), filter 160ms var(--ease);
+      user-select:none;
+    }
+
+    .btn:active{transform: translateY(1px) scale(.99)}
+
+    .btnPrimary{
+      color:#0b1020;
+      background: linear-gradient(90deg, rgba(34,211,238,1), rgba(124,58,237,1), rgba(249,115,22,1));
+      background-size: 180% 100%;
+      animation: hueMove 2.4s linear infinite;
+      box-shadow: 0 18px 45px rgba(124,58,237,.28);
+    }
+
+    .btnGhost{
+      color: rgba(243,244,255,.92);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(8px);
+    }
+
+    /* falling petals + sparkles */
+    .petalLayer, .sparkLayer{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:40;
+    }
+
+    .petal{
+      position:absolute;
+      top:-12vh;
+      width: 18px;
+      height: 12px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.10) 55%, rgba(124,58,237,.15) 80%);
+      filter: drop-shadow(0 10px 18px rgba(124,58,237,.25));
+      opacity:.85;
+      transform: rotate(10deg);
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall{
+      to{
+        transform: translate3d(var(--dx), 120vh, 0) rotate(var(--rot));
+        opacity: .1;
+      }
+    }
+
+    .spark{
+      position:absolute;
+      width: 4px; height: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 18px rgba(34,211,238,.55), 0 0 26px rgba(124,58,237,.35);
+      opacity: .0;
+      animation: twinkle 1.8s ease-in-out infinite;
+    }
+
+    @keyframes twinkle{
+      0%,100%{opacity:0; transform: scale(.6)}
+      50%{opacity:1; transform: scale(1.25)}
+    }
+
+    /* ===== Bomb blast transition ===== */
+    .blast{
+      position:fixed; inset:0;
+      display:grid; place-items:center;
+      pointer-events:none;
+      z-index:60;
+      opacity:0;
+      transition: opacity 220ms var(--ease);
+    }
+    .blast.show{opacity:1}
+
+    .ring{
+      width: 14px; height:14px;
+      border-radius:999px;
+      border: 2px solid rgba(255,255,255,.95);
+      box-shadow: 0 0 18px rgba(34,211,238,.55), 0 0 28px rgba(124,58,237,.45);
+      transform: scale(.2);
+      animation: ringPop 650ms var(--ease) forwards;
+    }
+
+    @keyframes ringPop{
+      0%{transform: scale(.2); opacity: 1}
+      70%{transform: scale(22); opacity: .85}
+      100%{transform: scale(28); opacity:0}
+    }
+
+    .shards{position:absolute; inset:0}
+    .shard{
+      position:absolute;
+      left:50%; top:50%;
+      width: 10px; height:10px;
+      background: linear-gradient(90deg, rgba(34,211,238,1), rgba(124,58,237,1), rgba(249,115,22,1));
+      border-radius: 3px;
+      transform: translate(-50%,-50%);
+      filter: drop-shadow(0 10px 12px rgba(0,0,0,.35));
+      animation: shardFly 680ms var(--ease) forwards;
+    }
+    @keyframes shardFly{
+      to{
+        transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) rotate(var(--sr));
+        opacity:0;
+      }
+    }
+
+    /* ===== Main Page ===== */
+    .app{
+      min-height:100vh;
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity var(--t) var(--ease), transform var(--t) var(--ease);
+    }
+    .app.show{opacity:1; transform: translateY(0)}
+
+    body.mainTheme{
+      color: var(--text);
+      background:
+        radial-gradient(900px 700px at 15% 10%, rgba(124,58,237,.12), transparent 60%),
+        radial-gradient(750px 600px at 92% 18%, rgba(34,211,238,.10), transparent 55%),
+        radial-gradient(800px 700px at 40% 95%, rgba(249,115,22,.08), transparent 55%),
+        linear-gradient(180deg, var(--main-bg1), var(--main-bg2));
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.45);
+      border-bottom: 1px solid var(--stroke);
+    }
+    body:not(.mainTheme) .topbar{display:none}
+
+    .topbarInner{
+      max-width:1100px;
+      margin:0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.2px;
+    }
+    .brandDot{
+      width:12px; height:12px; border-radius:999px;
+      background: linear-gradient(90deg, #22d3ee, #7c3aed, #f97316);
+      box-shadow: 0 0 18px rgba(124,58,237,.28);
+    }
+
+    .rightTools{display:flex; gap:10px; align-items:center}
+
+    .iconBtn{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.70);
+      box-shadow: 0 12px 30px rgba(0,0,0,.06);
+      display:grid; place-items:center;
+      cursor:pointer;
+      transition: transform 160ms var(--ease);
+      user-select:none;
+    }
+    .iconBtn:active{transform: translateY(1px) scale(.99)}
+    .svg{width:22px; height:22px; display:block}
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding: 18px 16px 70px;
+    }
+
+    .card{
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .hero{
+      padding: 18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .heroHead{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .heroTitle{margin:0; font-size: clamp(22px, 2.4vw, 30px); letter-spacing:.2px}
+    .heroSub{margin:0; color: var(--muted); line-height:1.5; font-size: 14.5px}
+
+    .profileRow{
+      display:grid;
+      grid-template-columns: 220px 1fr;
+      gap:16px;
+      align-items:center;
+    }
+    @media (max-width: 620px){ .profileRow{grid-template-columns:1fr} }
+
+    .avatarWrap{display:grid; place-items:center; padding: 12px 0 6px}
+    .avatar{
+      width: 190px; height: 190px;
+      border-radius: 28px;
+      border: 1px solid var(--stroke);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(124,58,237,.20), transparent 55%),
+        radial-gradient(circle at 70% 25%, rgba(34,211,238,.14), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.75));
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+
+    .infoList{display:grid; gap:10px}
+
+    .pillGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 620px){ .pillGrid{grid-template-columns:1fr} }
+
+    .pill{
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      padding: 12px 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.05);
+    }
+    .pill b{display:block; font-size: 12px; color: var(--muted); letter-spacing:.2px}
+    .pill span{display:block; margin-top:3px; font-weight:900; letter-spacing:.2px}
+
+    .section{margin-top:16px}
+    .sectionTitle{margin: 0 0 10px 0; font-size: 16px; letter-spacing:.2px}
+
+    /* Slider */
+    .slider{padding: 14px}
+    .sliderFrame{
+      border-radius: 18px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.80);
+      overflow:hidden;
+      position:relative;
+      touch-action: pan-y;
+    }
+    .slides{
+      display:flex;
+      transform: translateX(0px);
+      transition: transform 380ms var(--ease);
+      will-change: transform;
+    }
+    .slide{
+      min-width:100%;
+      aspect-ratio: 16 / 9;
+      display:grid;
+      place-items:center;
+      position:relative;
+      background: linear-gradient(180deg, rgba(124,58,237,.10), rgba(34,211,238,.06));
+    }
+    .slide img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .slideBadge{
+      position:absolute;
+      left:12px; top:12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--stroke);
+      font-weight:900;
+      font-size:12px;
+    }
+    .sliderDots{display:flex; justify-content:center; gap:8px; padding-top:10px}
+    .dot{
+      width:8px; height:8px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.12);
+      cursor:pointer;
+    }
+    .dot.active{
+      width:22px;
+      background: linear-gradient(90deg, #22d3ee, #7c3aed, #f97316);
+      border-color: transparent;
+    }
+
+    /* Languages */
+    .langs{padding: 14px 14px 18px}
+    .langList{display:flex; flex-wrap:wrap; gap:10px}
+    .langChip{
+      cursor:pointer;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      transition: transform 140ms var(--ease);
+      user-select:none;
+    }
+    .langChip:active{transform: translateY(1px) scale(.99)}
+    .langChip small{
+      display:block;
+      font-weight:700;
+      opacity:.65;
+      margin-top:3px;
+      letter-spacing:0;
+    }
+
+    /* Social */
+    .social{padding: 14px; display:grid; gap:10px}
+    .socialRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .socialBtn{
+      display:flex; align-items:center; gap:10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 12px 30px rgba(0,0,0,.05);
+      cursor:pointer;
+      user-select:none;
+      transition: transform 140ms var(--ease);
+    }
+    .socialBtn:active{transform: translateY(1px) scale(.99)}
+    .socialBtn b{font-size: 14px}
+    .socialBtn span{font-size: 12.5px; color: var(--muted)}
+
+    /* Extra photos */
+    .twoPhotos{
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 560px){ .twoPhotos{grid-template-columns:1fr} }
+
+    .miniPhoto{
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.80);
+      aspect-ratio: 4 / 3;
+      position:relative;
+      box-shadow: 0 16px 40px rgba(0,0,0,.08);
+    }
+    .miniPhoto img{width:100%; height:100%; object-fit:cover; display:block}
+    .miniPhoto::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,.18));
+      pointer-events:none;
+    }
+
+    /* Footer signature */
+    .footer{
+      margin-top:18px;
+      padding: 16px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .sig{
+      font-weight: 950;
+      letter-spacing:.2px;
+      background: linear-gradient(90deg, #22d3ee, #7c3aed, #f97316);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    /* ===== Menu overlay ===== */
+    .menuOverlay{
+      position:fixed; inset:0;
+      background: rgba(10,14,26,.42);
+      backdrop-filter: blur(10px);
+      display:none;
+      z-index:80;
+    }
+    .menuOverlay.show{display:block}
+
+    .menuPanel{
+      position:absolute;
+      right: 14px;
+      top: 64px;
+      width: min(340px, 92vw);
+      border-radius: 20px;
+      background: rgba(255,255,255,.95);
+      border: 1px solid var(--stroke);
+      box-shadow: 0 30px 90px rgba(0,0,0,.20);
+      overflow:hidden;
+      animation: popIn 220ms var(--ease) both;
+    }
+    @keyframes popIn{
+      from{transform: translateY(-8px) scale(.98); opacity:0}
+      to{transform: translateY(0) scale(1); opacity:1}
+    }
+    .menuHead{
+      padding: 12px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom: 1px solid var(--stroke);
+    }
+    .menuHead b{color: var(--text)}
+    .menuList{padding: 10px; display:grid; gap:8px}
+
+    .menuItem{
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.88);
+      cursor:pointer;
+      user-select:none;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .menuItem small{display:block; font-weight:700; opacity:.6; margin-top:3px}
+  </style>
+</head>
+
+<body>
+  <!-- Petals + sparkles (Intro only, then auto stop) -->
+  <div class="petalLayer" id="petalLayer" aria-hidden="true"></div>
+  <div class="sparkLayer" id="sparkLayer" aria-hidden="true"></div>
+
+  <!-- Intro Screen -->
+  <section class="intro" id="intro">
+    <div class="introCard">
+      <div class="introInner">
+        <h1 class="title"><span class="rainbow">Welcome</span> &amp; <span class="rainbow">Let’s Go</span></h1>
+        <div class="ctaRow">
+          <button class="btn btnPrimary" id="goBtn">Get Start</button>
+          <button class="btn btnGhost" id="introSoundBtn" title="Intro boom sound on/off">Boom: ON</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blast transition -->
+  <div class="blast" id="blast" aria-hidden="true">
+    <div class="ring"></div>
+    <div class="shards" id="shards"></div>
+  </div>
+
+  <!-- Topbar (Main theme) -->
+  <header class="topbar">
+    <div class="topbarInner">
+      <div class="brand" title="My Bio Profile">
+        <span class="brandDot"></span>
+        <span>My Bio</span>
+      </div>
+
+      <div class="rightTools">
+        <!-- Music toggle -->
+        <button class="iconBtn" id="musicBtn" title="Music play/pause">
+          <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 18V6l12-2v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 10l12-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7.5 20.5c1.933 0 3.5-1.12 3.5-2.5s-1.567-2.5-3.5-2.5S4 16.62 4 18s1.567 2.5 3.5 2.5Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M19.5 18.5c1.933 0 3.5-1.12 3.5-2.5s-1.567-2.5-3.5-2.5-3.5 1.12-3.5 2.5 1.567 2.5 3.5 2.5Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+
+        <!-- Menu -->
+        <button class="iconBtn" id="menuBtn" title="Menu">
+          <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Menu overlay -->
+  <div class="menuOverlay" id="menuOverlay" aria-hidden="true">
+    <div class="menuPanel" role="dialog" aria-label="Navigation Menu">
+      <div class="menuHead">
+        <b>Menu</b>
+        <button class="iconBtn" id="closeMenuBtn" style="width:38px;height:38px;border-radius:12px" aria-label="Close">
+          <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="menuList">
+        <div class="menuItem" data-target="#profile"> My Profile <small>Shajib's profile</small></div>
+        <div class="menuItem" data-target="#slider">Photos<small></small></div>
+        <div class="menuItem" data-target="#languages">Languages <small></small></div>
+        <div class="menuItem" data-target="#social">Social Links <small>Facebook / Telegram</small></div>
+        <div class="menuItem" data-target="#morephotos">More Photos <small>My photos</small></div>
+        <div class="menuItem" data-target="#signature">Signature <small>Creator line</small></div>
+
+        <div class="menuItem" data-link="t.me/shajib16092">Telegram <small></small></div>
+        <div class="menuItem" data-link="https://www.facebook.com/islamshajib35090">Facebook <small></small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <main class="app" id="app">
+    <div class="container">
+      <!-- Profile Card -->
+      <section class="card hero" id="profile">
+        <div class="heroHead">
+          <div>
+            <h2 class="heroTitle">My Profile</h2>
+            <p class="heroSub"> </p>
+          </div>
+        </div>
+
+        <div class="profileRow">
+          <div class="avatarWrap">
+            <div class="avatar" title="Your Photo">
+              <img src="https://h.top4top.io/p_3707jt0w80.jpg" alt="My Photo">
+            </div>
+          </div>
+
+          <div class="infoList">
+            <div class="pillGrid">
+              <div class="pill"><b>Name</b><span id="MyName">Md Abusayed Shajib</span></div>
+              <div class="pill"><b>Father's Name</b><span id="myFather">Md Shajedul Islam</span></div>
+              <div class="pill"><b>Mother's Name</b><span id="myMother">Mst Shahana Begum</span></div>
+              <div class="pill"><b>Data of Birth</b><span id="myClass">05-05-2007</span></div>
+              <div class="pill"><b>Class</b><span id="myClass">Inter 1st year</span></div>
+              <div class="pill"><b>Educational Qualification</b><span id="edu">Intermediate 1st year</span></div>
+              <div class="pill"><b>Location</b><span id="loc">Gaibandha,Sundargonj Pourashova. Word no.2 Kazi</span></div>
+              <div class="pill"><b>Hobby</b><span id="myClass">I will study at Dhaka University</span></div>
+            </div>
+
+            <div class="pill">
+              <b>About</b>
+              <span style="font-weight:800; line-height:1.55; display:block; margin-top:6px; letter-spacing:0">
+                ভালোবাসা করতে   
+          পারিনি ঠিকই, 
+                 কিন্তু নিজের জন্য সময়                রাখতে শিখেছি ❤️‍🔥
+                  একা থাকাটাও একটা আর্ট 😌🎨
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slider -->
+      <section class="card section slider" id="slider">
+        <h3 class="sectionTitle">My Photos</h3>
+        <div class="sliderFrame" id="sliderFrame">
+          <div class="slides" id="slides">
+            <div class="slide"><span class="slideBadge">Photo 1</span><img src="https://e.top4top.io/p_3707m7o0b0.jpg" alt="Photo 1"></div>
+            <div class="slide"><span class="slideBadge">Photo 2</span><img src="https://j.top4top.io/p_3707xcdab0.jpg" alt="Photo 2"></div>
+            <div class="slide"><span class="slideBadge">Photo 3</span><img src="https://l.top4top.io/p_37073v4o40.jpg" alt="Photo 3"></div>
+          </div>
+        </div>
+        <div class="sliderDots" id="dots" aria-label="Slider dots"></div>
+      </section>
+
+      <!-- Languages -->
+      <section class="card section langs" id="languages">
+        <h3 class="sectionTitle">Language</h3>
+        <div class="langList" id="langList">
+        
+          <div class="langChip" data-url="https://www.w3schools.com/js/">Bangla <small></small></div>
+          <div class="langChip" data-url="https://www.python.org/">English <small></small></div>
+          
+        </div>
+      </section>
+
+      <!-- Social -->
+      <section class="card section social" id="social">
+        <h3 class="sectionTitle">Social & Contact</h3>
+
+        <div class="socialRow">
+          <a class="socialBtn" id="fbBtn" href="https://www.facebook.com/islamshajib35090" target="_blank" rel="noopener">
+            <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M14 9h3V6h-3c-1.657 0-3 1.343-3 3v3H8v3h3v6h3v-6h3l1-3h-4V9c0-.552.448-1 1-1Z" fill="currentColor"/>
+            </svg>
+            <div><b>Facebook</b><br/><span></span></div>
+          </a>
+
+          <a class="socialBtn" id="tgBtn" href="t.me/shajib16092" target="_blank" rel="noopener">
+            <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 4 3.7 10.5c-1.1.4-1.1 1.9.1 2.2l4.3 1.1 1.6 5c.3.9 1.5 1.1 2 .4l2.4-3.1 4.3 3.2c.8.6 1.9.1 2.1-.9L22 5.7C22.2 4.7 22 4.2 21 4Z" fill="currentColor" opacity=".95"/>
+              <path d="M9 14.2 18.7 7.6c.3-.2.6.2.3.5l-7.9 7.4" stroke="white" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div><b>Telegram</b><br/><span></span></div>
+          </a>
+
+      <!-- More photos -->
+      <section class="card section twoPhotos" id="morephotos">
+        <div class="miniPhoto" title="Extra photo A"><img src="https://f.top4top.io/p_3707pb8rw0.png" alt="Extra 1"></div>
+        <div class="miniPhoto" title="Extra photo B"><img src="https://k.top4top.io/p_3707e7x770.png" alt="Extra 2"></div>
+      </section>
+
+      <!-- Signature -->
+      <section class="card section footer" id="signature">
+        <div>Created By❤️ by <span class="sig">Md Abusayed Shajib's</span></div>
+        <div style="margin-top:6px">© <span id="year"></span> — All rights reserved.</div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ✅ LINK AUDIO -->
+  <audio id="introSfx" preload="auto"></audio>
+  <audio id="bgm" loop preload="auto"></audio>
+
+  <script>
+    // ✅ RAW links
+    const INTRO_SOUND_LINK =
+      "https://raw.githubusercontent.com/Rooks-1032w/Music-upload/main/welcome.mp3";
+
+    const MAIN_MUSIC_LINK =
+      "https://raw.githubusercontent.com/Rooks-1032w/Music-upload/main/opsonal.mp3";
+
+    const introSfx = document.getElementById("introSfx");
+    const bgm = document.getElementById("bgm");
+    introSfx.src = INTRO_SOUND_LINK;
+    bgm.src = MAIN_MUSIC_LINK;
+
+    // ===== Helpers =====
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    // ====== Petals & Sparkles (Intro) ======
+    const petalLayer = document.getElementById('petalLayer');
+    const sparkLayer = document.getElementById('sparkLayer');
+
+    function spawnPetals(count=18){
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'petal';
+        const left = rand(0, 100);
+        const dur = rand(4.8, 9.2);
+        const delay = rand(0, 2.5);
+        const dx = `${rand(-140, 140)}px`;
+        const rot = `${rand(-220, 220)}deg`;
+        p.style.left = left + 'vw';
+        p.style.animationDuration = dur + 's';
+        p.style.animationDelay = delay + 's';
+        p.style.setProperty('--dx', dx);
+        p.style.setProperty('--rot', rot);
+        p.style.opacity = rand(0.55, 0.95).toFixed(2);
+        p.style.transform = `rotate(${rand(-20,20)}deg)`;
+        petalLayer.appendChild(p);
+        setTimeout(()=> p.remove(), (dur + delay + 0.5) * 1000);
+      }
+    }
+
+    function spawnSparks(count=22){
+      for(let i=0;i<count;i++){
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.left = rand(0, 100) + 'vw';
+        s.style.top  = rand(0, 100) + 'vh';
+        s.style.animationDelay = rand(0, 2.3) + 's';
+        sparkLayer.appendChild(s);
+      }
+    }
+
+    spawnPetals(22);
+    spawnSparks(26);
+    const petalInterval = setInterval(()=> spawnPetals(10), 850);
+
+    // ====== Intro -> Main transition ======
+    const intro = document.getElementById('intro');
+    const goBtn = document.getElementById('goBtn');
+    const blast = document.getElementById('blast');
+    const shards = document.getElementById('shards');
+    const app = document.getElementById('app');
+
+    function makeShards(n=18){
+      shards.innerHTML = '';
+      for(let i=0;i<n;i++){
+        const sh = document.createElement('div');
+        sh.className = 'shard';
+        sh.style.setProperty('--sx', `${rand(-520, 520)}px`);
+        sh.style.setProperty('--sy', `${rand(-360, 360)}px`);
+        sh.style.setProperty('--sr', `${rand(-260, 260)}deg`);
+        sh.style.opacity = rand(.7, 1).toFixed(2);
+        sh.style.width = rand(8, 14) + 'px';
+        sh.style.height = rand(8, 14) + 'px';
+        shards.appendChild(sh);
+      }
+    }
+
+    let boomEnabled = true;
+    const introSoundBtn = document.getElementById('introSoundBtn');
+    introSoundBtn.addEventListener('click', ()=>{
+      boomEnabled = !boomEnabled;
+      introSoundBtn.textContent = boomEnabled ? "Boom: ON" : "Boom: OFF";
+    });
+
+    // IMPORTANT: mobile browsers allow audio only after user action.
+    goBtn.addEventListener('click', ()=>{
+      // ✅ open main first
+      makeShards(22);
+      blast.classList.add('show');
+
+      clearInterval(petalInterval);
+      setTimeout(()=>{ petalLayer.innerHTML=''; sparkLayer.innerHTML=''; }, 900);
+
+      setTimeout(()=>{
+        intro.classList.add('hidden');
+        document.body.classList.add('mainTheme');
+        app.classList.add('show');
+      }, 520);
+
+      setTimeout(()=> blast.classList.remove('show'), 800);
+
+      // ✅ intro sound 
+      if(boomEnabled){
+        try { introSfx.currentTime = 0; introSfx.play(); } catch(e) {}
+      }
+    });
+
+    // ====== Menu ======
+    const menuBtn = document.getElementById('menuBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+    function openMenu(){ menuOverlay.classList.add('show'); }
+    function closeMenu(){ menuOverlay.classList.remove('show'); }
+
+    menuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', (e)=>{
+      if(e.target === menuOverlay) closeMenu();
+    });
+
+    document.querySelectorAll('.menuItem').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        const target = item.getAttribute('data-target');
+        const link = item.getAttribute('data-link');
+        closeMenu();
+
+        if (target) {
+          document.querySelector(target)?.scrollIntoView({behavior:'smooth', block:'start'});
+          return;
+        }
+        if (link) {
+          window.open(link, '_blank', 'noopener');
+          return;
+        }
+      });
+    });
+
+    // ====== Swipe Slider ======
+    const slides = document.getElementById('slides');
+    const sliderFrame = document.getElementById('sliderFrame');
+    const dotsWrap = document.getElementById('dots');
+    const slideCount = slides.children.length;
+    let idx = 0;
+
+    function buildDots(){
+      dotsWrap.innerHTML = '';
+      for(let i=0;i<slideCount;i++){
+        const d = document.createElement('div');
+        d.className = 'dot' + (i===0 ? ' active' : '');
+        d.addEventListener('click', ()=> goTo(i));
+        dotsWrap.appendChild(d);
+      }
+    }
+    function updateDots(){
+      [...dotsWrap.children].forEach((d,i)=> d.classList.toggle('active', i===idx));
+    }
+    function goTo(i){
+      idx = Math.max(0, Math.min(slideCount-1, i));
+      slides.style.transform = `translateX(${-idx*100}%)`;
+      updateDots();
+    }
+    buildDots();
+
+    let startX = 0, currentX = 0, dragging = false;
+
+    function onDown(x){
+      dragging = true;
+      startX = x;
+      currentX = x;
+      slides.style.transition = 'none';
+    }
+    function onMove(x){
+      if(!dragging) return;
+      currentX = x;
+      const dx = currentX - startX;
+      slides.style.transform = `translateX(calc(${-idx*100}% + ${dx}px))`;
+    }
+    function onUp(){
+      if(!dragging) return;
+      dragging = false;
+      slides.style.transition = '';
+      const dx = currentX - startX;
+      const threshold = 45;
+      if(dx < -threshold) goTo(idx+1);
+      else if(dx > threshold) goTo(idx-1);
+      else goTo(idx);
+    }
+
+    sliderFrame.addEventListener('touchstart', (e)=> onDown(e.touches[0].clientX), {passive:true});
+    sliderFrame.addEventListener('touchmove', (e)=> onMove(e.touches[0].clientX), {passive:true});
+    sliderFrame.addEventListener('touchend', onUp);
+
+    sliderFrame.addEventListener('mousedown', (e)=>{ e.preventDefault(); onDown(e.clientX); });
+    window.addEventListener('mousemove', (e)=> onMove(e.clientX));
+    window.addEventListener('mouseup', onUp);
+
+    // ====== Languages click ======
+    document.querySelectorAll('.langChip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        const url = chip.getAttribute('data-url');
+        if(url) window.open(url, '_blank', 'noopener');
+      });
+    });
+
+    // ====== Music toggle ======
+    const musicBtn = document.getElementById('musicBtn');
+    let musicOn = false;
+
+    async function toggleMusic(){
+      try{
+        if(!musicOn){
+          await bgm.play();
+          musicOn = true;
+          musicBtn.title = "Music: ON (tap to pause)";
+          musicBtn.style.boxShadow = "0 18px 45px rgba(124,58,237,.25)";
+        }else{
+          bgm.pause();
+          musicOn = false;
+          musicBtn.title = "Music: OFF (tap to play)";
+          musicBtn.style.boxShadow = "";
+        }
+      }catch(err){
+        alert("Music play হয়নি। (Link/Network check করো) তারপর আবার চাপো।");
+      }
+    }
+    musicBtn.addEventListener('click', toggleMusic);
+
+    // ====== Year ======
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
